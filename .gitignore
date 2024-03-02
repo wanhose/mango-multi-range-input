@@ -13,3 +13,4 @@ npm-debug.log
 !.yarn/releases
 !.yarn/plugins
 .pnp.*
+.env
