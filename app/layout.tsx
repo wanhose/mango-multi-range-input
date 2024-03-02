@@ -1,5 +1,5 @@
 import 'normalize.css/normalize.css';
-import React from 'react';
+import type { ReactNode } from 'react';
 
 export default function Layout(props: LayoutProps) {
   const { children } = props;
@@ -12,5 +12,5 @@ export default function Layout(props: LayoutProps) {
 }
 
 export interface LayoutProps {
-  readonly children: React.ReactNode;
+  readonly children: ReactNode;
 }
