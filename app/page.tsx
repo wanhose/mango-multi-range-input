@@ -1,3 +1,10 @@
+import Logo from '../components/Logo';
+import styles from './page.module.css';
+
 export default function Page() {
-  return <h1>Hello, Mango!</h1>;
+  return (
+    <div className={styles.Container}>
+      <Logo />
+    </div>
+  );
 }
