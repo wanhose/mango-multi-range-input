@@ -1,0 +1,8 @@
+{
+  "name": "mango-multi-range-input",
+  "version": "1.0.0",
+  "description": "A multi-range slider input for Mango",
+  "repository": "git@github.com:wanhose/mango-multi-range-input.git",
+  "author": "wanhose",
+  "license": "MIT"
+}
