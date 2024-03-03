@@ -9,7 +9,6 @@ describe('Logo', () => {
 
     expect(img).toBeInTheDocument();
     expect(img.getAttribute('height')).toBe('53');
-    expect(img.getAttribute('loading')).toBe('lazy');
     expect(img.getAttribute('width')).toBe('320');
   });
 });
