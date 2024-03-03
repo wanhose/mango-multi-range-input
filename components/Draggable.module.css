@@ -1,0 +1,15 @@
+.Container {
+  background-color: black;
+  border-radius: 50%;
+  height: 8px;
+  outline: none;
+  position: absolute;
+  top: -2px;
+  width: 8px;
+}
+
+.Container:focus,
+.Container:hover {
+  cursor: grab;
+  transform: scale(1.25);
+}

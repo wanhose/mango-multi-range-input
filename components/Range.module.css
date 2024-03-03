@@ -1,0 +1,15 @@
+.Container {
+  align-items: center;
+  display: flex;
+  gap: 4px;
+  margin-top: 16px;
+  position: relative;
+}
+
+.Input {
+  background-color: black;
+  border-radius: 4px;
+  flex: 1;
+  height: 4px;
+  position: relative;
+}
