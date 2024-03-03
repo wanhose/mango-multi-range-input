@@ -3,3 +3,15 @@
   max-width: 320px;
   padding: 16px;
 }
+
+.List {
+  padding: 0px;
+}
+
+.List a {
+  color: black;
+}
+
+.List li {
+  margin-top: 4px;
+}

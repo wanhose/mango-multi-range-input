@@ -1,19 +1,25 @@
-import { Suspense } from 'react';
-import Logo from '../components/Logo';
-import Range from '../components/Range';
+import type { Metadata } from 'next';
+import Link from 'next/link';
+import type { JSX } from 'react';
 import styles from './page.module.css';
-import Loading from '../components/Loading';
+import Logo from '../components/Logo';
 
-export default function Page() {
+export const metadata: Metadata = {
+  title: 'Home',
+};
+
+export default function Page(): JSX.Element {
   return (
     <div className={styles.Container}>
       <Logo />
-      <Suspense fallback={<Loading />}>
-        <Range type="range" />
-      </Suspense>
-      <Suspense fallback={<Loading />}>
-        <Range type="fixed" />
-      </Suspense>
+      <ul className={styles.List}>
+        <li>
+          <Link href="/exercise1">Exercise 1</Link>
+        </li>
+        <li>
+          <Link href="/exercise2">Exercise 2</Link>
+        </li>
+      </ul>
     </div>
   );
 }
