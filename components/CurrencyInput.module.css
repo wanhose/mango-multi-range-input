@@ -1,0 +1,10 @@
+.Container {
+  display: contents;
+}
+
+.Input {
+  max-width: 42px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  white-space: nowrap;
+}
