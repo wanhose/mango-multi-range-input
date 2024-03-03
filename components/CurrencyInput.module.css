@@ -3,8 +3,17 @@
 }
 
 .Input {
+  border-bottom: 1px solid transparent;
+  cursor: text;
   max-width: 42px;
+  outline: none;
   overflow-x: auto;
   scrollbar-width: none;
+  text-align: right;
   white-space: nowrap;
+}
+
+.Input:focus,
+.Input:hover {
+  border-bottom-color: black;
 }
