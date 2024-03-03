@@ -1,7 +1,8 @@
 import '../styles/normalize.css';
 import '../styles/global.css';
 import { Inter } from 'next/font/google';
-import type { ReactNode } from 'react';
+import { type ReactNode, Suspense } from 'react';
+import Loading from '../components/Loading';
 
 const inter = Inter({
   display: 'swap',
@@ -15,7 +16,9 @@ export default function Layout(props: LayoutProps) {
 
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>
+        <Suspense fallback={<Loading />}>{children}</Suspense>
+      </body>
     </html>
   );
 }

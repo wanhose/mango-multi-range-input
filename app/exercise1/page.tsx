@@ -1,7 +1,5 @@
 import type { Metadata } from 'next';
-import { Suspense } from 'react';
 import styles from '../page.module.css';
-import Loading from '../../components/Loading';
 import Logo from '../../components/Logo';
 import Range from '../../components/Range';
 import fetchData, { RangeData } from '../../utils/fetchData';
@@ -17,9 +15,7 @@ export default async function Exercise1() {
   return (
     <div className={styles.Container}>
       <Logo />
-      <Suspense fallback={<Loading />}>
-        <Range type={data.type} values={values} />
-      </Suspense>
+      <Range type={data.type} values={values} />
     </div>
   );
 }
