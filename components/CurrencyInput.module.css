@@ -3,6 +3,7 @@
 }
 
 .Input {
+  -webkit-user-modify: read-write-plaintext-only;
   border-bottom: 1px solid transparent;
   cursor: text;
   max-width: 42px;
