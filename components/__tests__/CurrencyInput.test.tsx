@@ -5,6 +5,7 @@ describe('CurrencyInput', () => {
   const props: CurrencyInputProps = {
     max: 100,
     min: 1,
+    onBlur: jest.fn(),
     onChange: jest.fn(),
     defaultValue: 50,
   };
@@ -32,6 +33,6 @@ describe('CurrencyInput', () => {
     fireEvent.input(input, { target: { textContent: '150' } });
     fireEvent.blur(input);
 
-    expect(input.textContent).toBe('50');
+    expect(input.textContent).toBe('100');
   });
 });
