@@ -15,7 +15,7 @@ import styles from './CurrencyInput.module.css';
 
 const CurrencyInput = forwardRef<CurrencyInputRef, CurrencyInputProps>(
   (props, ref) => {
-    const { defaultValue, max, min, onChange, ...rest } = props;
+    const { defaultValue, max, min, onBlur, onChange, ...rest } = props;
     const inputRef = useRef<HTMLSpanElement>(null);
 
     useImperativeHandle(ref, () => ({
@@ -31,18 +31,21 @@ const CurrencyInput = forwardRef<CurrencyInputRef, CurrencyInputProps>(
         const textContent = event.currentTarget.textContent?.trim();
         const value = Number(textContent);
 
-        if (
-          defaultValue &&
-          (textContent === '' || min > value || max < value)
-        ) {
+        if (isNaN(value) || textContent === '') {
           event.currentTarget.innerHTML = `${defaultValue}`;
-          onChange?.(defaultValue);
-        } else if (!isNaN(value)) {
+          onBlur?.(defaultValue);
+        } else if (min > value) {
+          event.currentTarget.innerHTML = `${min}`;
+          onBlur?.(min);
+        } else if (max < value) {
+          event.currentTarget.innerHTML = `${max}`;
+          onBlur?.(max);
+        } else {
           event.currentTarget.innerHTML = `${value}`;
-          onChange?.(value);
+          onBlur?.(value);
         }
       },
-      [defaultValue, max, min, onChange],
+      [defaultValue, max, min, onBlur],
     );
 
     const handleInput = useCallback(
@@ -87,6 +90,7 @@ export interface CurrencyInputProps
   readonly defaultValue: number;
   readonly max: number;
   readonly min: number;
+  readonly onBlur: (value: number) => void;
   readonly onChange: (value: number) => void;
 }
 
