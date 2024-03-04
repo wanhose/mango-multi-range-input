@@ -1,64 +1,95 @@
+/* eslint-disable react/display-name */
+
 'use client';
 
-import {
-  type JSX,
+import React, {
   ChangeEvent,
-  HTMLAttributes,
   FocusEvent,
+  forwardRef,
+  HTMLAttributes,
   useCallback,
+  useImperativeHandle,
+  useRef,
 } from 'react';
 import styles from './CurrencyInput.module.css';
 
-export default function CurrencyInput(props: CurrencyInputProps): JSX.Element {
-  const { defaultValue, max, min, onChange, ...rest } = props;
+const CurrencyInput = forwardRef<CurrencyInputRef, CurrencyInputProps>(
+  (props, ref) => {
+    const { defaultValue, max, min, onChange, ...rest } = props;
+    const inputRef = useRef<HTMLSpanElement>(null);
 
-  const handleBlur = useCallback(
-    (event: FocusEvent<HTMLSpanElement>) => {
-      const textContent = event.currentTarget.textContent?.trim();
-      const value = Number(textContent);
+    useImperativeHandle(ref, () => ({
+      setValue: (value: number) => {
+        if (inputRef.current) {
+          inputRef.current.innerHTML = `${value}`;
+        }
+      },
+    }));
 
-      if (defaultValue && (textContent === '' || min > value || max < value)) {
-        event.currentTarget.innerHTML = `${defaultValue}`;
-      } else if (!isNaN(value)) {
-        event.currentTarget.innerHTML = `${value}`;
-      }
-    },
-    [defaultValue, max, min],
-  );
+    const handleBlur = useCallback(
+      (event: FocusEvent<HTMLSpanElement>) => {
+        const textContent = event.currentTarget.textContent?.trim();
+        const value = Number(textContent);
 
-  const handleInput = useCallback(
-    (event: ChangeEvent<HTMLSpanElement>) => {
-      const textContent = event.currentTarget.textContent?.trim();
-      const value = Number(textContent);
+        if (
+          defaultValue &&
+          (textContent === '' || min > value || max < value)
+        ) {
+          event.currentTarget.innerHTML = `${defaultValue}`;
+          onChange?.(defaultValue);
+        } else if (!isNaN(value)) {
+          event.currentTarget.innerHTML = `${value}`;
+          onChange?.(value);
+        }
+      },
+      [defaultValue, max, min, onChange],
+    );
 
-      if (!Number.isNaN(value) && min <= value && max >= value) {
-        onChange?.(value);
-      }
-    },
-    [max, min, onChange],
-  );
+    const handleInput = useCallback(
+      (event: ChangeEvent<HTMLSpanElement>) => {
+        const textContent = event.currentTarget.textContent?.trim();
+        const value = Number(textContent);
 
-  return (
-    <div className={styles.Container}>
-      <span
-        className={styles.Input}
-        contentEditable
-        onBlur={handleBlur}
-        onInput={handleInput}
-        role="textbox"
-        suppressContentEditableWarning
-        {...rest}
-      >
-        {defaultValue}
-      </span>
-      €
-    </div>
-  );
-}
+        if (!Number.isNaN(value) && min <= value && max >= value) {
+          onChange?.(value);
+        }
+      },
+      [max, min, onChange],
+    );
+
+    return (
+      <div className={styles.Container}>
+        <span
+          ref={inputRef}
+          className={styles.Input}
+          contentEditable
+          onBlur={handleBlur}
+          onInput={handleInput}
+          role="textbox"
+          suppressContentEditableWarning
+          {...rest}
+        >
+          {defaultValue}
+        </span>
+        €
+      </div>
+    );
+  },
+);
+
+export default CurrencyInput;
 
 export interface CurrencyInputProps
-  extends Omit<HTMLAttributes<HTMLSpanElement>, 'onBlur' | 'onChange'> {
+  extends Omit<
+    HTMLAttributes<HTMLSpanElement>,
+    'defaultValue' | 'onBlur' | 'onChange'
+  > {
+  readonly defaultValue: number;
   readonly max: number;
   readonly min: number;
   readonly onChange: (value: number) => void;
+}
+
+export interface CurrencyInputRef {
+  readonly setValue: (value: number) => void;
 }

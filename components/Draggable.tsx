@@ -1,3 +1,5 @@
+'use client';
+
 import React, {
   HTMLAttributes,
   MouseEvent,
@@ -8,13 +10,14 @@ import React, {
 } from 'react';
 import styles from './Draggable.module.css';
 
-export default function Draggable(props: HTMLAttributes<HTMLDivElement>) {
+const ELEMENT_SIZE = 8;
+
+export default function Draggable(props: DraggableProps) {
+  const { left, max, min, onDrag, ...rest } = props;
   const draggableRef = useRef<HTMLDivElement>(null);
   // Relative position of the mouse to the draggable element
   const [cursorX, setCursorX] = useState<number | undefined>(undefined);
-  // Position of the draggable element
-  const [elementX, setElementX] = useState<number>(0);
-  const [isDragging, setIsDragging] = useState(false);
+  const [isDragging, setIsDragging] = useState<boolean>(false);
 
   const handleMouseDown = useCallback(
     (event: MouseEvent<HTMLDivElement>) => {
@@ -27,41 +30,47 @@ export default function Draggable(props: HTMLAttributes<HTMLDivElement>) {
       }
 
       setIsDragging(true);
-      setCursorX(event.pageX - elementX);
+
+      const parentWidth = event.currentTarget.parentElement?.clientWidth || 0;
+      const nextValue = (parentWidth * left) / 100;
+
+      setCursorX(event.pageX - nextValue);
     },
-    [elementX],
+    [left],
   );
 
   const handleMouseMove = useCallback(
-    (event: MouseEvent<HTMLDivElement>) => {
+    (event: MouseEvent) => {
       event.preventDefault();
       event.stopPropagation();
 
       // If we're not dragging, or we're not using relative positioning, do nothing
-      if (!isDragging || !cursorX) {
+      if (!isDragging || typeof cursorX !== 'number') {
         return;
       }
 
-      const newElementX = event.pageX - cursorX;
+      const position = Math.round(event.pageX - cursorX);
       const parentWidth = draggableRef.current?.parentElement?.clientWidth || 0;
-      const elementWidth = draggableRef.current?.offsetWidth || 0;
 
+      // Calculate the max and min in pixels
+      const maxPx = Math.round((parentWidth * max) / 100);
+      const minPx = Math.round((parentWidth * min) / 100);
       switch (true) {
-        case newElementX < 0:
-          setElementX(0);
+        case position < minPx:
+          onDrag?.(parentWidth, minPx);
           break;
-        case newElementX > parentWidth - elementWidth:
-          setElementX(parentWidth - elementWidth);
+        case position > maxPx:
+          onDrag?.(parentWidth, maxPx);
           break;
         default:
-          setElementX(newElementX);
+          onDrag?.(parentWidth, position);
           break;
       }
     },
-    [cursorX, isDragging],
+    [cursorX, isDragging, max, min, onDrag],
   );
 
-  const handleMouseUp = useCallback((event: MouseEvent<HTMLDivElement>) => {
+  const handleMouseUp = useCallback((event: MouseEvent) => {
     event.preventDefault();
     event.stopPropagation();
     setIsDragging(false);
@@ -70,6 +79,7 @@ export default function Draggable(props: HTMLAttributes<HTMLDivElement>) {
   useEffect(() => {
     document.addEventListener('mousemove', handleMouseMove as any);
     document.addEventListener('mouseup', handleMouseUp as any);
+
     return () => {
       document.removeEventListener('mousemove', handleMouseMove as any);
       document.removeEventListener('mouseup', handleMouseUp as any);
@@ -92,10 +102,20 @@ export default function Draggable(props: HTMLAttributes<HTMLDivElement>) {
       ref={draggableRef}
       style={{
         cursor: isDragging ? 'grabbing' : undefined,
-        left: `${elementX}px`,
-        ...props.style,
+        height: ELEMENT_SIZE,
+        left: `calc(${left}% - ${ELEMENT_SIZE / 2}px)`,
+        width: ELEMENT_SIZE,
+        ...rest.style,
       }}
-      {...props}
+      {...rest}
     />
   );
+}
+
+export interface DraggableProps
+  extends Omit<HTMLAttributes<HTMLDivElement>, 'onDrag'> {
+  readonly max: number;
+  readonly min: number;
+  readonly onDrag?: (parentWidth: number, position: number) => void;
+  readonly left: number;
 }

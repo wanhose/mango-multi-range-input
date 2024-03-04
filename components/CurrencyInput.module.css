@@ -1,11 +1,12 @@
 .Container {
-  display: contents;
+  display: flex;
 }
 
 .Input {
   border-bottom: 1px solid transparent;
   cursor: text;
   max-width: 42px;
+  min-width: 32px;
   outline: none;
   overflow-x: auto;
   scrollbar-width: none;

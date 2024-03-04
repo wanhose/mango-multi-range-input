@@ -1,7 +1,7 @@
 .Container {
   align-items: center;
   display: flex;
-  gap: 4px;
+  gap: 8px;
   margin-top: 16px;
   position: relative;
 }
