@@ -2,12 +2,12 @@
 
 import {
   type JSX,
-  useEffect,
-  useRef,
-  useState,
-  useMemo,
   useCallback,
   useDeferredValue,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
 } from 'react';
 import styles from './Range.module.css';
 import CurrencyInput, { CurrencyInputRef } from './CurrencyInput';
