@@ -2,6 +2,7 @@
 
 import React, {
   HTMLAttributes,
+  KeyboardEvent,
   MouseEvent,
   useCallback,
   useEffect,
@@ -13,7 +14,7 @@ import styles from './Draggable.module.css';
 const ELEMENT_SIZE = 8;
 
 export default function Draggable(props: DraggableProps) {
-  const { left, max, min, onDrag, ...rest } = props;
+  const { left, max, min, onDrag, style, ...rest } = props;
   const draggableRef = useRef<HTMLDivElement>(null);
   // Relative position of the mouse to the draggable element
   const [cursorX, setCursorX] = useState<number | undefined>(undefined);
@@ -57,13 +58,13 @@ export default function Draggable(props: DraggableProps) {
       const minPx = Math.round((parentWidth * min) / 100);
       switch (true) {
         case position < minPx:
-          onDrag?.(parentWidth, minPx);
+          onDrag(parentWidth, minPx);
           break;
         case position > maxPx:
-          onDrag?.(parentWidth, maxPx);
+          onDrag(parentWidth, maxPx);
           break;
         default:
-          onDrag?.(parentWidth, position);
+          onDrag(parentWidth, position);
           break;
       }
     },
@@ -100,12 +101,13 @@ export default function Draggable(props: DraggableProps) {
       className={styles.Container}
       onMouseDown={handleMouseDown}
       ref={draggableRef}
+      tabIndex={0}
       style={{
         cursor: isDragging ? 'grabbing' : undefined,
         height: ELEMENT_SIZE,
         left: `calc(${left}% - ${ELEMENT_SIZE / 2}px)`,
         width: ELEMENT_SIZE,
-        ...rest.style,
+        ...style,
       }}
       {...rest}
     />
@@ -113,9 +115,10 @@ export default function Draggable(props: DraggableProps) {
 }
 
 export interface DraggableProps
-  extends Omit<HTMLAttributes<HTMLDivElement>, 'onDrag'> {
+  extends Omit<HTMLAttributes<HTMLDivElement>, 'onDrag' | 'onKeyDown'> {
   readonly max: number;
   readonly min: number;
-  readonly onDrag?: (parentWidth: number, position: number) => void;
+  readonly onKeyDown: (event: KeyboardEvent<HTMLSpanElement>) => void;
+  readonly onDrag: (parentWidth: number, position: number) => void;
   readonly left: number;
 }
