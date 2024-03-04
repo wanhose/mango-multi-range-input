@@ -3,7 +3,6 @@
 import React, {
   HTMLAttributes,
   KeyboardEvent,
-  MouseEvent,
   useCallback,
   useEffect,
   useRef,
@@ -20,37 +19,26 @@ export default function Draggable(props: DraggableProps) {
   const [cursorX, setCursorX] = useState<number | undefined>(undefined);
   const [isDragging, setIsDragging] = useState<boolean>(false);
 
-  const handleMouseDown = useCallback(
-    (event: MouseEvent<HTMLDivElement>) => {
-      event.preventDefault();
-      event.stopPropagation();
-
-      // Only allow left click to drag
-      if (event.button !== 0) {
-        return;
-      }
-
+  const handleStart = useCallback(
+    (clientX: number) => {
       setIsDragging(true);
 
-      const parentWidth = event.currentTarget.parentElement?.clientWidth || 0;
+      const parentWidth = draggableRef.current?.parentElement?.clientWidth || 0;
       const nextValue = (parentWidth * left) / 100;
 
-      setCursorX(event.pageX - nextValue);
+      setCursorX(clientX - nextValue);
     },
     [left],
   );
 
-  const handleMouseMove = useCallback(
-    (event: MouseEvent) => {
-      event.preventDefault();
-      event.stopPropagation();
-
+  const handleMove = useCallback(
+    (clientX: number) => {
       // If we're not dragging, or we're not using relative positioning, do nothing
       if (!isDragging || typeof cursorX !== 'number') {
         return;
       }
 
-      const position = Math.round(event.pageX - cursorX);
+      const position = Math.round(clientX - cursorX);
       const parentWidth = draggableRef.current?.parentElement?.clientWidth || 0;
 
       // Calculate the max and min in pixels
@@ -71,21 +59,74 @@ export default function Draggable(props: DraggableProps) {
     [cursorX, isDragging, max, min, onDrag],
   );
 
-  const handleMouseUp = useCallback((event: MouseEvent) => {
-    event.preventDefault();
-    event.stopPropagation();
-    setIsDragging(false);
-  }, []);
+  const handleMouseDown = useCallback(
+    (event: React.MouseEvent<HTMLDivElement>) => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      // Only allow left click to drag
+      if (event.button !== 0) {
+        return;
+      }
+
+      handleStart(event.clientX);
+    },
+    [handleStart],
+  );
+
+  const handleMouseMove = useCallback(
+    (event: MouseEvent) => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      handleMove(event.clientX);
+    },
+    [handleMove],
+  );
+
+  const handleMouseUpOrTouchEnd = useCallback(
+    (event: MouseEvent | TouchEvent) => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      setIsDragging(false);
+    },
+    [],
+  );
+
+  const handleTouchStart = useCallback(
+    (event: React.TouchEvent<HTMLDivElement>) => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      handleStart(event.touches[0].clientX);
+    },
+    [handleStart],
+  );
+
+  const handleTouchMove = useCallback(
+    (event: TouchEvent) => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      handleMove(event.touches[0].clientX);
+    },
+    [handleMove],
+  );
 
   useEffect(() => {
-    document.addEventListener('mousemove', handleMouseMove as any);
-    document.addEventListener('mouseup', handleMouseUp as any);
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUpOrTouchEnd);
+    document.addEventListener('touchend', handleMouseUpOrTouchEnd);
+    document.addEventListener('touchmove', handleTouchMove);
 
     return () => {
-      document.removeEventListener('mousemove', handleMouseMove as any);
-      document.removeEventListener('mouseup', handleMouseUp as any);
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUpOrTouchEnd);
+      document.removeEventListener('touchend', handleMouseUpOrTouchEnd);
+      document.removeEventListener('touchmove', handleTouchMove);
     };
-  }, [handleMouseMove, handleMouseUp]);
+  }, [handleMouseMove, handleMouseUpOrTouchEnd, handleTouchMove]);
 
   useEffect(() => {
     // Set the cursor to grabbing when dragging for all the page
@@ -100,6 +141,7 @@ export default function Draggable(props: DraggableProps) {
     <div
       className={styles.Container}
       onMouseDown={handleMouseDown}
+      onTouchStart={handleTouchStart}
       ref={draggableRef}
       tabIndex={0}
       style={{
